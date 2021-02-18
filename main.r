@@ -18,5 +18,5 @@ luad <- select(luad, -c('Delta C(t)', 'RQ', 'Avg RQ', 'STDEV', 'SEM'))
 lusc <- select(lusc, -c('Delta C(t)', 'RQ', 'Avg RQ', 'STDEV', 'SEM'))
 
 # Calculate Delta C(t)
-failed_donor <- failed_donor %>% add_column(delta_ct = failed_donor['C(t)']-failed_donor['Ctrl C(t)'])
-
+failed_donor["delta_ct"] <- failed_donor['C(t)']-failed_donor['Ctrl C(t)']
+failed_donor["RQ"] <- 2^-(failed_donor['delta_ct'])
