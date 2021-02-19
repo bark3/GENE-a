@@ -7,6 +7,7 @@
 library(readxl)
 library(tidyverse)
 
+
 # Read in lung patient samples
 failed_donor <- read_xlsx("/Users/zacharybarkley/Documents/Courtney R Project/Raw Data/LC Disparities Data Analysis-Zach edit.xlsx")
 luad <- read_xlsx("/Users/zacharybarkley/Documents/Courtney R Project/Raw Data/LC Disparities Data Analysis-Zach edit.xlsx", sheet = 2)
@@ -17,8 +18,19 @@ failed_donor <- select(failed_donor, -c('Delta C(t)', 'RQ', 'Avg RQ', 'STDEV', '
 luad <- select(luad, -c('Delta C(t)', 'RQ', 'Avg RQ', 'STDEV', 'SEM'))
 lusc <- select(lusc, -c('Delta C(t)', 'RQ', 'Avg RQ', 'STDEV', 'SEM'))
 
-# Calculate Delta C(t)
-failed_donor["delta_ct"] <- failed_donor['C(t)']-failed_donor['Ctrl C(t)']
-failed_donor["RQ"] <- 2^-(failed_donor['delta_ct'])
+# Calculate Delta C(t) and RQ for the each patient status
+add_dctrq <- function(dt){
+  dt["delta_ct"] <- dt['C(t)']-dt['Ctrl C(t)']
+  dt["RQ"] <- 2^-(dt['delta_ct'])
+  
+  return(dt)
+}
 
-boogy woogy woogy
+failed_donor <- add_dctrq(failed_donor)
+luad <- add_dctrq(luad)
+lusc <- add_dctrq(lusc)
+
+# Calculate failed donor vs agg lung cancer
+names(failed_donor) <- str_replace_all(names(failed_donor), c(" " = "." , "," = "" ))
+fdVsAgControl <- failed_donor %>% group_by(Target.Name) %>% summarize(avgRQ = mean(RQ))
+
