@@ -32,5 +32,41 @@ lusc <- add_dctrq(lusc)
 
 # Calculate failed donor vs agg lung cancer
 names(failed_donor) <- str_replace_all(names(failed_donor), c(" " = "." , "," = "" ))
-fdVsAgControl <- failed_donor %>% group_by(Target.Name) %>% summarize(avgRQ = mean(RQ))
+names(luad) <- str_replace_all(names(luad), c(" " = "." , "," = "" ))
+names(lusc) <- str_replace_all(names(lusc), c(" " = "." , "," = "" ))
 
+agCan <- bind_rows(luad,lusc)
+
+miRNAs <- unique(agCan["Target.Name"])
+
+
+# Loop to calculate t.test for each micro-RNA
+size = dim(miRNAs)
+
+i <- 1
+test <- tibble(pValue = 1.1:size[1], muX = 1.1:size[1], muY =1.1:size[1])
+while (i <= size[1]){
+  xGroup <- filter(failed_donor, Target.Name == miRNAs[[i,1]])
+  x <- xGroup["RQ"]
+  yGroup <- filter(agCan, Target.Name == miRNAs[[i,1]])
+  y <- yGroup["RQ"]
+  iM <- t.test(x=x,y=y)
+  test[i,1] <- unname(iM[[3]])
+  test[i,2] <- unname(iM[[5]][[1]])
+  test[i,3] <- unname(iM[[5]][[2]])
+  i = i+1
+}
+
+testResults <- bind_cols(miRNAs, test)
+
+testResults["foldChange"] <- testResults["muY"]/testResults['muX']
+
+accept <- filter(testResults, pValue <.05, foldChange > 2 | foldChange < .5)
+
+
+  
+  
+  
+  
+  
+  
