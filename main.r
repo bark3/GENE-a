@@ -6,12 +6,15 @@
 # Set environment
 library(readxl)
 library(tidyverse)
+source("fileLocation.R")
 
+# Allow for individual file structure. Need function called file that just passes file path. Can hard code if preferred. 
+filePath <- fileLocation()
 
 # Read in lung patient samples
-failed_donor <- read_xlsx("/Users/zacharybarkley/Documents/Courtney R Project/Raw Data/LC Disparities Data Analysis-Zach edit.xlsx")
-luad <- read_xlsx("/Users/zacharybarkley/Documents/Courtney R Project/Raw Data/LC Disparities Data Analysis-Zach edit.xlsx", sheet = 2)
-lusc <- read_xlsx("/Users/zacharybarkley/Documents/Courtney R Project/Raw Data/LC Disparities Data Analysis-Zach edit.xlsx", sheet = 3)
+failed_donor <- read_xlsx(filePath)
+luad <- read_xlsx(filePath, sheet = 2)
+lusc <- read_xlsx(filePath, sheet = 3)
 
 # Clean
 failed_donor <- select(failed_donor, -c('Delta C(t)', 'RQ', 'Avg RQ', 'STDEV', 'SEM'))
